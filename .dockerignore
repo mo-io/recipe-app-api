@@ -1,0 +1,15 @@
+#Git
+.git
+.gitignore
+
+#Docker
+.docker
+
+#Python
+app/__pycach__/
+app/*/__pycach__/
+app/*/*/__pycach__/
+app/*/*/*/__pycach__/
+.env/
+.venv/
+venv/
