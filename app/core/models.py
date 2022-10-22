@@ -1,5 +1,5 @@
 '''Database models.'''
-from unittest.util import _MAX_LENGTH
+from unittest.util import _MAX_LENGTH  # noqa
 from django.db import models
 from django.contrib.auth.models import (
     AbstractBaseUser,
