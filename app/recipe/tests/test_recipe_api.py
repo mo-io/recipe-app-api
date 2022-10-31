@@ -20,7 +20,6 @@ from recipe.serializers import (
 )
 
 RECIPE_URL = reverse('recipe:recipe-list')
-TAGS_URL = reverse('recipe:tag-list')
 
 
 def detail_url(recipe_id):
@@ -141,12 +140,12 @@ class PrivateRecipeAPITests(TestCase):
         '''Test creating recipe with tags.'''
         payload = {
             'title': 'Thai Brawn Curry',
-            'time_munites': 30,
-            'price': Decimal('2.5'),
-            'tags': [{'name': 'Thai'}, {'name': 'Dinner'}]
+            'time_miuntes': 30,
+            'price': Decimal('2.50'),
+            'tags': [{'name': 'Thai'}, {'name': 'Dinner'}],
         }
 
-        res = self.client.post(TAGS_URL, payload, format='json')
+        res = self.client.post(RECIPE_URL, payload, format='json')
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         recipes = Recipe.objects.filter(user=self.user)
@@ -155,7 +154,7 @@ class PrivateRecipeAPITests(TestCase):
         self.assertEqual(recipe.tags.count(), 2)
         for tag in payload['tags']:
             exists = recipe.tags.filter(
-                name=recipe['tag'],
+                name=tag['name'],
                 user=self.user,
             ).exists()
             self.assertTrue(exists)
