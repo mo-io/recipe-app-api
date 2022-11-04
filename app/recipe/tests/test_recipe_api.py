@@ -235,7 +235,7 @@ class ImageUploadTests(TestCase):
     def test_upload_image(self):
         '''Test uploading image to a recipe.'''
         url = image_upload_url(self.recipe.id)
-        with tempfile.NamedTemporaryFile(suffix='jpg') as image_file:
+        with tempfile.NamedTemporaryFile(suffix='.jpg') as image_file:
             img = Image.new('RGB', (10, 10))
             img.save(image_file, format='JPEG')
             image_file.seek(0)
