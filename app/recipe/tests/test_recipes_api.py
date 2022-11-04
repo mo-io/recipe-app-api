@@ -1,5 +1,6 @@
 '''Test Recipe API.'''
 from decimal import Decimal
+from genericpath import exists
 
 from django.contrib.auth import get_user_model
 from django.urls import reverse
@@ -12,6 +13,7 @@ from rest_framework.test import APIClient
 from core.models import (
     Recipe,
     Tag,
+    Ingredient,
 )
 
 from recipe.serializers import (
@@ -158,3 +160,48 @@ class PrivateRecipeAPITests(TestCase):
                 user=self.user,
             ).exists()
             self.assertTrue(exists)
+
+    def test_create_new_recipe_with_ingredient(self):
+        '''Test creating new recipe with an ingredient.'''
+        payload = {
+            'title': 'Cauliflower Tacos',
+            'time_minutes': 20,
+            'price': Decimal('5.5'),
+            'ingredients': [
+                {'name': 'Cauliflower'},
+                {'name': 'Salt'},
+            ]
+
+        }
+
+        res = self.client.post(RECIPE_URL, payload, format='json')
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+        recipes = Recipe.objects.filter(user=self.user)
+
+        self.assertEqual(recipes.count(), 1)
+        recipe = recipes[0]
+
+        self.assertEqual(recipe.ingredients.count(), 2)
+        for ingredient in payload['ingredients']:
+            exists = recipe.ingredients.filter(
+                user=self.user,
+                name=ingredient['name']
+            ).exists()
+            self.assertTrue(exists)
+
+    def test_update_recipe_assign_ingredient(self):
+        '''Test assigning an exsisting incredient when updating recipe.'''
+        ingredient1 = Ingredient.objects.create(user=self.user, name='Pepper')
+        recipe = create_recipe(user=self.user)
+        recipe.ingredients.add(ingredient1)
+
+        ingredient2 = Ingredient.objects.create(user=self.user, name='Chili')
+        payload = {'ingredients': [{'name': 'Chili'}]}
+        url = detail_url(recipe.id)
+        res = self.client.patch(url, payload, format='json')
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn(ingredient2, recipe.ingredients.all())
+        self.assertNotIn(ingredient1, recipe.ingredients.all())
