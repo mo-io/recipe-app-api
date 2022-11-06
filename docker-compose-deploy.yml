@@ -10,7 +10,7 @@ services:
     environment:
       - DB_HOST=db
       - DB_NAME=${DB_NAME}
-      - DB_USUR=${DB_USER}
+      - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
       - SECRET_KEY=${DJANGO_SECRET_KEY}
       - ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
@@ -33,7 +33,7 @@ services:
     depends_on:
       - app
     ports:
-      - 8000:8000
+      - 80:8000
     volumes:
       - static-data:/vol/static
 
