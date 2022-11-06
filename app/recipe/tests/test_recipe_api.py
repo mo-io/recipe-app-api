@@ -5,7 +5,6 @@ import os
 from PIL import Image
 
 from decimal import Decimal
-from genericpath import exists
 
 from django.contrib.auth import get_user_model
 from django.urls import reverse
@@ -17,8 +16,8 @@ from rest_framework.test import APIClient
 
 from core.models import (
     Recipe,
-    Tag,
     Ingredient,
+    Tag,
 )
 
 from recipe.serializers import (
@@ -215,6 +214,28 @@ class PrivateRecipeAPITests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertIn(ingredient2, recipe.ingredients.all())
         self.assertNotIn(ingredient1, recipe.ingredients.all())
+
+    def test_filter_by_tags(self):
+        '''Test filtering by tags.'''
+        r1 = create_recipe(user=self.user, title='Tai Vegetable')
+        r2 = create_recipe(user=self.user, title='Pizza')
+        r3 = create_recipe(user=self.user, title='Burger')
+        t1 = Tag.objects.create(user=self.user, name='Vegan')
+        t2 = Tag.objects.create(user=self.user, name='Vegiterian')
+        r1.tags.add(t1)
+        r2.tags.add(t2)
+
+        s1 = RecipeSerializer(r1)
+        s2 = RecipeSerializer(r2)
+        s3 = RecipeSerializer(r3)
+
+        params = {'tags': f'{t1.id},{t2.id}'}
+        res = self.client.get(RECIPE_URL, params)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn(s1.data, res.data)
+        self.assertIn(s2.data, res.data)
+        self.assertNotIn(s3.data, res.data)
 
 
 class ImageUploadTests(TestCase):
